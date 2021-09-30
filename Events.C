@@ -64,7 +64,7 @@ void Events::Loop()
     
     
     // PARTE RELATIVA AL FILE OK
-    TFile* output = new TFile("output_T.root","RECREATE"); //create a new file root
+    TFile* output = new TFile("output_Tbar.root","RECREATE"); //create a new file root
     
     TTree* top = new TTree("top", "top"); //initailize a Tree
     
