@@ -42,9 +42,9 @@ void Events::Loop()
     
     Long64_t nentries = fChain->GetEntriesFast();
     
-    THStack *hs1 = new THStack("pT","");
-    THStack *hs2 = new THStack("phi","");
-    THStack *hs3 = new THStack("eta","");
+    THStack *hs1 = new THStack("hs1","pT stacked");
+    THStack *hs2 = new THStack("hs2","phi stacked");
+    THStack *hs3 = new THStack("hs3","eta stacked");
        //gStyle->SetPalette(kOcean);
     
     TH1F* h1 = new TH1F("h1", "electron pT", 100, 0.0, 250.0);
@@ -63,7 +63,7 @@ void Events::Loop()
     
     
     
-    /* PARTE RELATIVA AL FILE OK
+    // PARTE RELATIVA AL FILE OK
     TFile* output = new TFile("output_T.root","RECREATE"); //create a new file root
     
     TTree* top = new TTree("top", "top"); //initailize a Tree
@@ -73,7 +73,7 @@ void Events::Loop()
     top->Branch("eta",&eta,"electron:muon:tau");
     //top->Branch("h1","TH1F",&h1);
     
-    */
+    
     
     
     
@@ -111,49 +111,43 @@ void Events::Loop()
                 case 11:
                     h1->Fill(LHEPart_pt[ilept]);
                     h1->SetFillColor(kRed);
-                    hs1->Add(h1);
                     h2->Fill(LHEPart_phi[ilept]);
                     h2->SetFillColor(kRed);
-                    hs2->Add(h2);
                     h3->Fill(LHEPart_eta[ilept]);
                     h3->SetFillColor(kRed);
-                    hs3->Add(h3);
                     
                     pt.electron=LHEPart_pt[ilept];
                     phi.electron=LHEPart_phi[ilept];
                     eta.electron=LHEPart_eta[ilept];
 
                     top->Fill();
+                    
+                    
                     break;
                 case 13:
                     
                     h4->Fill(LHEPart_pt[ilept]);
                     h4->SetFillColor(kBlue);
-                    hs1->Add(h4);
                     h5->Fill(LHEPart_phi[ilept]);
                     h5->SetFillColor(kBlue);
-                    hs2->Add(h5);
                     h6->Fill(LHEPart_eta[ilept]);
                     h6->SetFillColor(kBlue);
-                    hs3->Add(h6);
                     
                     pt.muon=LHEPart_pt[ilept];
                     phi.muon=LHEPart_phi[ilept];
                     eta.muon=LHEPart_eta[ilept];
                     
                     top->Fill();
+                    
                     break;
                 case 15:
                     
                     h7->Fill(LHEPart_pt[ilept]);
                     h7->SetFillColor(kGreen);
-                    hs1->Add(h7);
                     h8->Fill(LHEPart_phi[ilept]);
                     h8->SetFillColor(kGreen);
-                    hs2->Add(h8);
                     h9->Fill(LHEPart_eta[ilept]);
                     h9->SetFillColor(kGreen);
-                    hs3->Add(h9);
                     
                     
                     pt.tau=LHEPart_pt[ilept];
@@ -161,6 +155,7 @@ void Events::Loop()
                     eta.tau=LHEPart_eta[ilept];
                     
                     top->Fill();
+                    
                     break;
                 default:
                     break;
@@ -171,54 +166,64 @@ void Events::Loop()
         // LHEPart_pt[ilept] LHEPart_eta[ilept] LHEPart_phi[ilept]
         
     }
-    
-    
+    //Write and close file
     output->Write();
     output->Close();
     
-   TCanvas *c1 = new TCanvas();
-    c1->cd();
+    //Stacking all the histograms
+    hs1->Add(h1);
+    hs2->Add(h2);
+    hs3->Add(h3);
+    hs1->Add(h4);
+    hs2->Add(h5);
+    hs3->Add(h6);
+    hs1->Add(h7);
+    hs2->Add(h8);
+    hs3->Add(h9);
+    
+    
+    
+    
+    //Draw histograms in 3 canvases, one for each variable
+   TCanvas *c1 = new TCanvas("c1","pT");
+    c1->Divide(2,2);
+    c1->cd(1);
+    hs1->Draw();
+    c1->cd(2);
     h1->Draw();
-    //TCanvas *c2 = new TCanvas();
-    //c2->cd();
-    h4->Draw("SAME");
-    //TCanvas *c3 = new TCanvas();
-    //c3->cd();
-    h7->Draw("SAME");
-    TCanvas *c4 = new TCanvas();
-    c4->cd();
+
+    c1->cd(3);
+    h4->Draw();
+
+    c1->cd(4);
+    h7->Draw();
+    
+    
+    TCanvas *c2 = new TCanvas("c2","phi");
+    c2->Divide(2,2);
+    c2->cd(1);
+    hs2->Draw();
+    c2->cd(2);
     h2->Draw();
-    //TCanvas *c5 = new TCanvas();
-    //c5->cd();
-    h5->Draw("SAME");
-    //TCanvas *c6 = new TCanvas();
-    //c6->cd();
-    h8->Draw("SAME");
-    TCanvas *c7 = new TCanvas();
-    c7->cd();
+
+    c2->cd(3);
+    h5->Draw();
+
+    c2->cd(4);
+    h8->Draw();
+
+    TCanvas *c3 = new TCanvas("c3","eta");
+    c3->Divide(2,2);
+    c3->cd(1);
+    hs3->Draw();
+    c3->cd(2);
     h3->Draw();
-    //TCanvas *c8 = new TCanvas();
-    //c8->cd();
+
+    c3->cd(3);
     h6->Draw();
-    //TCanvas *c9 = new TCanvas();
-    //c9->cd();
+    c3->cd(4);
     h9->Draw();
     
-    //c1->Update();
-    
-    TCanvas *cst = new TCanvas("cst","stacked hists");
-    //cst->Divide(3,0);
-    // in top left pad, draw the stack with defaults
-    cst->cd();
-    //TCanvas *c10 = new TCanvas();
-    //c10->cd();
-    hs1->Draw();
-    /*
-    cst->cd(2);
-    hs2->Draw();
-    cst->cd(3);
-    hs3->Draw();
-    */
 
     
     cout <<" TOTALE EVENTI " <<nev<<endl;
