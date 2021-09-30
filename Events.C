@@ -6,42 +6,22 @@
 
 void Events::Loop()
 {
-    //   In a ROOT session, you can do:
-    //      root> .L Events.C
-    //      root> Events t
-    //      root> t.GetEntry(12); // Fill t data members with entry number 12
-    //      root> t.Show();       // Show values of entry 12
-    //      root> t.Show(16);     // Read and show values of entry 16
-    //      root> t.Loop();       // Loop on all entries
-    //
-    
-    //     This is the loop skeleton where:
-    //    jentry is the global entry number in the chain
-    //    ientry is the entry number in the current Tree
-    //  Note that the argument to GetEntry must be:
-    //    jentry for TChain::GetEntry
-    //    ientry for TTree::GetEntry and TBranch::GetEntry
-    //
-    //       To read only selected branches, Insert statements like:
-    // METHOD1:
-    //    fChain->SetBranchStatus("*",0);  // disable all branches
-    //    fChain->SetBranchStatus("branchname",1);  // activate branchname
-    // METHOD2: replace line
-    //    fChain->GetEntry(jentry);       //read all branches
-    //by  b_branchname->GetEntry(ientry); //read only this branch
+
     if (fChain == 0) return;
     
     
     
-    // Define some simple structures
+    // Define some simple structures,
     typedef struct {Float_t electron,muon,tau;} VARIABLES; //define a struct, so i can see a variable for every particle
     
+    //define the variables of interest
     VARIABLES pt;
     VARIABLES phi;
     VARIABLES eta;
     
     Long64_t nentries = fChain->GetEntriesFast();
     
+    //definite histogram and Stack variables
     THStack *hs1 = new THStack("hs1","pT stacked");
     THStack *hs2 = new THStack("hs2","phi stacked");
     THStack *hs3 = new THStack("hs3","eta stacked");
@@ -69,11 +49,10 @@ void Events::Loop()
     TTree* top = new TTree("top", "top"); //initailize a Tree
     
     top->Branch("pT",&pt,"electron:muon:tau"); //divide the branch pT in three leaf, one for every particle
-    top->Branch("phi",&phi,"electron:muon:tau");
-    top->Branch("eta",&eta,"electron:muon:tau");
-    //top->Branch("h1","TH1F",&h1);
+    top->Branch("phi",&phi,"electron:muon:tau"); //same as above
+    top->Branch("eta",&eta,"electron:muon:tau"); //''
     
-    
+//TO FURTHER IMPLEMENT: IN THE SAME FILE CREATE A TREE FOR THE TBAR FILE
     
     
     
@@ -89,43 +68,43 @@ void Events::Loop()
         if (ientry < 0) break;
         nb = fChain->GetEntry(jentry);   nbytes += nb;
         int lept_type=-1; // lepton pdgID type
-        for (int i=0; i<=nLHEPart; i++) { //loop over the
+        for (int i=0; i<=nLHEPart; i++) { //loop over the particles
             
             // if (Cut(ientry) < 0) continue;
-            if(abs(LHEPart_pdgId[i])==11)  {
+            if(abs(LHEPart_pdgId[i])==11)  { //if electron
                 nele++; //increment count number of particle
-                ilept = i;
+                ilept = i; //flag for remembering the index
                 lept_type=11;
             }
-            if(abs(LHEPart_pdgId[i])==13){
+            if(abs(LHEPart_pdgId[i])==13){//see above
                 nmu++; //increment count number of particle
                 ilept = i;
                 lept_type=13;
             }
-            if(abs(LHEPart_pdgId[i])==15){
+            if(abs(LHEPart_pdgId[i])==15){//see above
                 ntau++; //increment count number of particle
                 ilept = i;
                 lept_type=15;
             }
             switch (lept_type) {
-                case 11:
-                    h1->Fill(LHEPart_pt[ilept]);
-                    h1->SetFillColor(kRed);
-                    h2->Fill(LHEPart_phi[ilept]);
+                case 11: //if electron
+                    h1->Fill(LHEPart_pt[ilept]); //fill histogram for pt
+                    h1->SetFillColor(kRed); //paint it red
+                    h2->Fill(LHEPart_phi[ilept]); //same for phi
                     h2->SetFillColor(kRed);
-                    h3->Fill(LHEPart_eta[ilept]);
+                    h3->Fill(LHEPart_eta[ilept]); //same for eta
                     h3->SetFillColor(kRed);
                     
-                    pt.electron=LHEPart_pt[ilept];
-                    phi.electron=LHEPart_phi[ilept];
-                    eta.electron=LHEPart_eta[ilept];
+                    pt.electron=LHEPart_pt[ilept]; //insert pt variable in the structure to further insert the tree
+                    phi.electron=LHEPart_phi[ilept];//phi for tree
+                    eta.electron=LHEPart_eta[ilept];//eta for tree
 
-                    top->Fill();
+                    top->Fill(); //fill top branch
                     
                     
                     break;
-                case 13:
-                    
+                case 13: //if muon
+                    //see above, the structure is the same
                     h4->Fill(LHEPart_pt[ilept]);
                     h4->SetFillColor(kBlue);
                     h5->Fill(LHEPart_phi[ilept]);
@@ -140,7 +119,9 @@ void Events::Loop()
                     top->Fill();
                     
                     break;
-                case 15:
+                case 15: //if tau
+                    //see above, the structure is the same
+                    
                     
                     h7->Fill(LHEPart_pt[ilept]);
                     h7->SetFillColor(kGreen);
@@ -162,8 +143,7 @@ void Events::Loop()
             }
         }
         nev++;
-        // Fill TH1F with
-        // LHEPart_pt[ilept] LHEPart_eta[ilept] LHEPart_phi[ilept]
+
         
     }
     //Write and close file
