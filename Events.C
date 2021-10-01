@@ -11,8 +11,8 @@ void Events::Loop()
     
     
     
-    // Define some simple structures,
-    typedef struct {Float_t electron,muon,tau;} VARIABLES; //define a struct, so i can see a variable for every particle
+    // Define a simple structure, need it for the tree later
+    typedef struct {Float_t electron,muon,tau;} VARIABLES; //define a struct VARIABLE, so i can see a variable for every particle
     
     //define the variables of interest
     VARIABLES pt;
@@ -29,13 +29,13 @@ void Events::Loop()
     
     TH1F* h1 = new TH1F("h1", "electron pT", 100, 0.0, 250.0);
     TH1F* h2 = new TH1F("h2", "electron phi", 100, -4, 4);
-    TH1F* h3 = new TH1F("h3", "electron eta", 100, -6, 6);
+    TH1F* h3 = new TH1F("h3", "electron eta", 100, -10, 10);
     TH1F* h4 = new TH1F("h4", "muon pT", 100, 0.0, 250.0);
     TH1F* h5 = new TH1F("h5", "muon phi", 100, -4, 4);
-    TH1F* h6 = new TH1F("h6", "muon eta", 100, -6, 6);
+    TH1F* h6 = new TH1F("h6", "muon eta", 100, -10, 10);
     TH1F* h7 = new TH1F("h7", "tau pT", 100, 0.0, 250.0);
     TH1F* h8 = new TH1F("h8", "tau phi", 100, -4, 4);
-    TH1F* h9 = new TH1F("h9", "tau eta", 100, -6, 6);
+    TH1F* h9 = new TH1F("h9", "tau eta", 100, -10, 10);
 
 
     int ilept=-1; // lepton index in LHEPart collection
@@ -46,12 +46,16 @@ void Events::Loop()
     // PARTE RELATIVA AL FILE OK
     TFile* output = new TFile("output_Tbar.root","RECREATE"); //create a new file root
     
+    
+    /*
+    
     TTree* top = new TTree("top", "top"); //initailize a Tree
     
     top->Branch("pT",&pt,"electron:muon:tau"); //divide the branch pT in three leaf, one for every particle
     top->Branch("phi",&phi,"electron:muon:tau"); //same as above
     top->Branch("eta",&eta,"electron:muon:tau"); //''
-    
+    top->Branch("electron pT",&hept,"electronpT");
+    */
 //TO FURTHER IMPLEMENT: IN THE SAME FILE CREATE A TREE FOR THE TBAR FILE
     
     
@@ -89,68 +93,103 @@ void Events::Loop()
             switch (lept_type) {
                 case 11: //if electron
                     h1->Fill(LHEPart_pt[ilept]); //fill histogram for pt
-                    h1->SetFillColor(kRed); //paint it red
                     h2->Fill(LHEPart_phi[ilept]); //same for phi
-                    h2->SetFillColor(kRed);
                     h3->Fill(LHEPart_eta[ilept]); //same for eta
-                    h3->SetFillColor(kRed);
-                    
+                    /*
                     pt.electron=LHEPart_pt[ilept]; //insert pt variable in the structure to further insert the tree
                     phi.electron=LHEPart_phi[ilept];//phi for tree
                     eta.electron=LHEPart_eta[ilept];//eta for tree
 
                     top->Fill(); //fill top branch
-                    
+                    */
                     
                     break;
                 case 13: //if muon
                     //see above, the structure is the same
                     h4->Fill(LHEPart_pt[ilept]);
-                    h4->SetFillColor(kBlue);
                     h5->Fill(LHEPart_phi[ilept]);
-                    h5->SetFillColor(kBlue);
                     h6->Fill(LHEPart_eta[ilept]);
-                    h6->SetFillColor(kBlue);
-                    
+                    /*
                     pt.muon=LHEPart_pt[ilept];
                     phi.muon=LHEPart_phi[ilept];
                     eta.muon=LHEPart_eta[ilept];
                     
                     top->Fill();
-                    
+                    */
                     break;
                 case 15: //if tau
                     //see above, the structure is the same
                     
                     
                     h7->Fill(LHEPart_pt[ilept]);
-                    h7->SetFillColor(kGreen);
                     h8->Fill(LHEPart_phi[ilept]);
-                    h8->SetFillColor(kGreen);
                     h9->Fill(LHEPart_eta[ilept]);
-                    h9->SetFillColor(kGreen);
                     
-                    
+                    /*
                     pt.tau=LHEPart_pt[ilept];
                     phi.tau=LHEPart_phi[ilept];
                     eta.tau=LHEPart_eta[ilept];
                     
                     top->Fill();
-                    
+                    */
                     break;
                 default:
                     break;
+                    
+
             }
+
         }
+        if(nElectron>0){
+            
+        }
+        //se nElectron (elettrone ricostruito)>0 salvo Electron_xy[0] pT, eta, phi solo per il primo
+        //salvo il pt diviso per lept_type
+        //tre istogrammi, electron_pT se c'è elettrone, e_pt nel decadimento muone, e_pt caso tau
+        //e le stacko
+        //se l'elettrone è ricostruito corettamente, ha un pt elevato perché decaduto dal W (che viene dal top), gli e da tau hanno energia più bassa
+        //
+        //isolamento e identificazione dopo
+        //
+        //uguale per nMuon
         nev++;
 
         
     }
-    //Write and close file
-    output->Write();
-    output->Close();
+
+    
+    
+    //TO DO: Add histogram to file OK
+    
+    
+
+    
     
     //Stacking all the histograms
+
+    
+    h1->Write();
+    h2->Write();
+    h3->Write();
+    h4->Write();
+    h5->Write();
+    h6->Write();
+    h7->Write();
+    h8->Write();
+    h9->Write();
+    
+    
+    h1->SetFillColor(kRed); //paint it red
+    h2->SetFillColor(kRed);
+    h3->SetFillColor(kRed);
+    h4->SetFillColor(kBlue);
+    h5->SetFillColor(kBlue);
+    h6->SetFillColor(kBlue);
+    h7->SetFillColor(kGreen);
+    h8->SetFillColor(kGreen);
+    h9->SetFillColor(kGreen);
+    
+    
     hs1->Add(h1);
     hs2->Add(h2);
     hs3->Add(h3);
@@ -162,8 +201,12 @@ void Events::Loop()
     hs3->Add(h9);
     
     
+    hs1->Write();
+    hs2->Write();
+    hs3->Write();
     
     
+    /*
     //Draw histograms in 3 canvases, one for each variable
    TCanvas *c1 = new TCanvas("c1","pT");
     c1->Divide(2,2);
@@ -203,8 +246,11 @@ void Events::Loop()
     h6->Draw();
     c3->cd(4);
     h9->Draw();
+    */
     
-
+    //Write and close file
+    output->Write();
+    output->Close();
     
     cout <<" TOTALE EVENTI " <<nev<<endl;
     cout << " Numero muoni " <<nmu<< " | n_mu/n_tau="<< (double) nmu/ntau<<endl;
