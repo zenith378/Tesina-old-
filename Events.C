@@ -12,7 +12,11 @@ void Events::Loop()
     
     
     // Define a simple structure, need it for the tree later
-    typedef struct {Float_t electron,muon,tau;} VARIABLES; //define a struct VARIABLE, so i can see a variable for every particle
+    typedef struct {
+        Float_t electron;
+        Float_t muon;
+        Float_t tau;
+    } VARIABLES; //define a struct VARIABLE, so i can see a variable for every particle
     
     //define the variables of interest
     VARIABLES pt;
@@ -25,37 +29,44 @@ void Events::Loop()
     THStack *hs1 = new THStack("hs1","pT stacked");
     THStack *hs2 = new THStack("hs2","phi stacked");
     THStack *hs3 = new THStack("hs3","eta stacked");
-       //gStyle->SetPalette(kOcean);
+    THStack *hs4 = new THStack("hs4","reconstructedElectron pT");
+    THStack *hs5 = new THStack("hs5","reconstructedMuon pT");
     
-    TH1F* h1 = new TH1F("h1", "electron pT", 100, 0.0, 250.0);
-    TH1F* h2 = new TH1F("h2", "electron phi", 100, -4, 4);
-    TH1F* h3 = new TH1F("h3", "electron eta", 100, -10, 10);
-    TH1F* h4 = new TH1F("h4", "muon pT", 100, 0.0, 250.0);
-    TH1F* h5 = new TH1F("h5", "muon phi", 100, -4, 4);
-    TH1F* h6 = new TH1F("h6", "muon eta", 100, -10, 10);
-    TH1F* h7 = new TH1F("h7", "tau pT", 100, 0.0, 250.0);
-    TH1F* h8 = new TH1F("h8", "tau phi", 100, -4, 4);
-    TH1F* h9 = new TH1F("h9", "tau eta", 100, -10, 10);
-
-
+    TH1F* h1 = new TH1F("h1", "electron pT", 50, 0.0, 350.0);
+    TH1F* h2 = new TH1F("h2", "electron phi", 50, -4, 4);
+    TH1F* h3 = new TH1F("h3", "electron eta", 50, -6.5, 6.5);
+    TH1F* h4 = new TH1F("h4", "muon pT", 50, 0.0, 350.0);
+    TH1F* h5 = new TH1F("h5", "muon phi", 50, -4, 4);
+    TH1F* h6 = new TH1F("h6", "muon eta", 50, -6.5, 6.5);
+    TH1F* h7 = new TH1F("h7", "tau pT", 50, 0.0, 350.0);
+    TH1F* h8 = new TH1F("h8", "tau phi", 50, -4, 4);
+    TH1F* h9 = new TH1F("h9", "tau eta", 50, -6.5, 6.5);
+    
+    TH1F* hRee = new TH1F("hRee", "Reconstructed electron pT, from electron event", 50, 0.0, 350.0);
+    TH1F* hRem = new TH1F("hRem", "Reconstructed electron pT, from muon event", 50, 0.0, 350.0);
+    TH1F* hRet = new TH1F("hRet", "Reconstructed electron pT, from tau event", 50, 0.0, 350.0);
+    TH1F* hRme = new TH1F("hRme", "Reconstructed muon pT, from electron event", 50, 0.0, 350.0);
+    TH1F* hRmm = new TH1F("hRmm", "Reconstructed muon pT, from muon event", 50, 0.0, 350.0);
+    TH1F* hRmt = new TH1F("hRmt", "Reconstructed muon pT, from tau event", 50, 0.0, 350.0);
+    
     int ilept=-1; // lepton index in LHEPart collection
     
     
     
     
     // PARTE RELATIVA AL FILE OK
-    TFile* output = new TFile("output_Tbar.root","RECREATE"); //create a new file root
+    TFile* output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
     
     
-    /*
+    
     
     TTree* top = new TTree("top", "top"); //initailize a Tree
     
     top->Branch("pT",&pt,"electron:muon:tau"); //divide the branch pT in three leaf, one for every particle
     top->Branch("phi",&phi,"electron:muon:tau"); //same as above
     top->Branch("eta",&eta,"electron:muon:tau"); //''
-    top->Branch("electron pT",&hept,"electronpT");
-    */
+    //top->Branch("electron pT",&hept,"electronpT");
+    
 //TO FURTHER IMPLEMENT: IN THE SAME FILE CREATE A TREE FOR THE TBAR FILE
     
     
@@ -78,71 +89,83 @@ void Events::Loop()
             if(abs(LHEPart_pdgId[i])==11)  { //if electron
                 nele++; //increment count number of particle
                 ilept = i; //flag for remembering the index
-                lept_type=11;
+                lept_type=11; //store particle type
+                break;
             }
             if(abs(LHEPart_pdgId[i])==13){//see above
                 nmu++; //increment count number of particle
                 ilept = i;
                 lept_type=13;
+                break;
             }
             if(abs(LHEPart_pdgId[i])==15){//see above
                 ntau++; //increment count number of particle
                 ilept = i;
                 lept_type=15;
+                break;
             }
-            switch (lept_type) {
-                case 11: //if electron
-                    h1->Fill(LHEPart_pt[ilept]); //fill histogram for pt
-                    h2->Fill(LHEPart_phi[ilept]); //same for phi
-                    h3->Fill(LHEPart_eta[ilept]); //same for eta
-                    /*
-                    pt.electron=LHEPart_pt[ilept]; //insert pt variable in the structure to further insert the tree
-                    phi.electron=LHEPart_phi[ilept];//phi for tree
-                    eta.electron=LHEPart_eta[ilept];//eta for tree
-
-                    top->Fill(); //fill top branch
-                    */
-                    
-                    break;
-                case 13: //if muon
-                    //see above, the structure is the same
-                    h4->Fill(LHEPart_pt[ilept]);
-                    h5->Fill(LHEPart_phi[ilept]);
-                    h6->Fill(LHEPart_eta[ilept]);
-                    /*
-                    pt.muon=LHEPart_pt[ilept];
-                    phi.muon=LHEPart_phi[ilept];
-                    eta.muon=LHEPart_eta[ilept];
-                    
-                    top->Fill();
-                    */
-                    break;
-                case 15: //if tau
-                    //see above, the structure is the same
-                    
-                    
-                    h7->Fill(LHEPart_pt[ilept]);
-                    h8->Fill(LHEPart_phi[ilept]);
-                    h9->Fill(LHEPart_eta[ilept]);
-                    
-                    /*
-                    pt.tau=LHEPart_pt[ilept];
-                    phi.tau=LHEPart_phi[ilept];
-                    eta.tau=LHEPart_eta[ilept];
-                    
-                    top->Fill();
-                    */
-                    break;
-                default:
-                    break;
-                    
-
-            }
-
         }
-        if(nElectron>0){
-            
+        switch (lept_type) {
+            case 11: //if electron
+                h1->Fill(LHEPart_pt[ilept]); //fill histogram for pt
+                h2->Fill(LHEPart_phi[ilept]); //same for phi
+                h3->Fill(LHEPart_eta[ilept]); //same for eta
+                /*
+                pt.electron=LHEPart_pt[ilept]; //insert pt variable in the structure to further insert the tree
+                phi.electron=LHEPart_phi[ilept];//phi for tree
+                eta.electron=LHEPart_eta[ilept];//eta for tree
+                
+                top->Fill(); //fill top branch
+                */
+                if(nElectron>0){ //if there is at least one reconstructed Electron
+                    hRee->Fill(Electron_pt[0]); //store pT value of Electron
+                    hRem->Fill(Muon_pt[0]); //Muon
+                    hRet->Fill(Tau_pt[0]); //Tau
+                }
+                
+                
+                break;
+            case 13: //if muon
+                //see above, the structure is the same
+                h4->Fill(LHEPart_pt[ilept]);
+                h5->Fill(LHEPart_phi[ilept]);
+                h6->Fill(LHEPart_eta[ilept]);
+                /*
+                pt.muon=LHEPart_pt[ilept];
+                phi.muon=LHEPart_phi[ilept];
+                eta.muon=LHEPart_eta[ilept];
+                
+                top->Fill();
+                */
+                if(nMuon>0){
+                    hRme->Fill(Electron_pt[0]);
+                    hRmm->Fill(Muon_pt[0]);
+                    hRmt->Fill(Tau_pt[0]);
+                }
+                break;
+            case 15: //if tau
+                //see above, the structure is the same
+                
+                
+                h7->Fill(LHEPart_pt[ilept]);
+                h8->Fill(LHEPart_phi[ilept]);
+                h9->Fill(LHEPart_eta[ilept]);
+                
+                /*
+                pt.tau=LHEPart_pt[ilept];
+                phi.tau=LHEPart_phi[ilept];
+                eta.tau=LHEPart_eta[ilept];
+                
+                top->Fill();
+                */
+                break;
+            default:
+                break;
+                
+                
         }
+        
+        
         //se nElectron (elettrone ricostruito)>0 salvo Electron_xy[0] pT, eta, phi solo per il primo
         //salvo il pt diviso per lept_type
         //tre istogrammi, electron_pT se c'è elettrone, e_pt nel decadimento muone, e_pt caso tau
@@ -165,7 +188,7 @@ void Events::Loop()
 
     
     
-    //Stacking all the histograms
+    //Writing and Stacking all the histograms
 
     
     h1->Write();
@@ -177,18 +200,30 @@ void Events::Loop()
     h7->Write();
     h8->Write();
     h9->Write();
+    hRee->Write();
+    hRem->Write();
+    hRet->Write();
+    hRme->Write();
+    hRmm->Write();
+    hRmt->Write();
     
     
-    h1->SetFillColor(kRed); //paint it red
-    h2->SetFillColor(kRed);
-    h3->SetFillColor(kRed);
-    h4->SetFillColor(kBlue);
-    h5->SetFillColor(kBlue);
-    h6->SetFillColor(kBlue);
-    h7->SetFillColor(kGreen);
-    h8->SetFillColor(kGreen);
-    h9->SetFillColor(kGreen);
     
+    h1->SetFillColor(38); //paint it black
+    h2->SetFillColor(38); //ELECTRON BLUE
+    h3->SetFillColor(38);
+    hRee->SetFillColor(38);
+    hRme->SetFillColor(38);
+    h4->SetFillColor(46); //MUON RED
+    h5->SetFillColor(46);
+    h6->SetFillColor(46);
+    hRem->SetFillColor(46);
+    hRmm->SetFillColor(46);
+    h7->SetFillColor(30); //TAU GREEN
+    h8->SetFillColor(30);
+    h9->SetFillColor(30);
+    hRet->SetFillColor(30);
+    hRmt->SetFillColor(30);
     
     hs1->Add(h1);
     hs2->Add(h2);
@@ -200,14 +235,53 @@ void Events::Loop()
     hs2->Add(h8);
     hs3->Add(h9);
     
+    hs4->Add(hRee);
+    hs4->Add(hRem);
+    hs4->Add(hRet);
+
+    hs5->Add(hRme);
+    hs5->Add(hRmm);
+    hs5->Add(hRmt);
+    
     
     hs1->Write();
     hs2->Write();
     hs3->Write();
+    hs4->Write();
+    hs5->Write();
+    /*
     
+    TCanvas *c1 = new TCanvas("c1","Electron pT");
+    c1->Divide(2,2);
+    c1->cd(1);
+    hs4->Draw();
+    c1->cd(2);
+    hRee->Draw();
+    
+    c1->cd(3);
+    hRem->Draw();
+    
+    c1->cd(4);
+    hRet->Draw();
+    
+    
+    TCanvas *c2 = new TCanvas("c2","Muon pT");
+    c2->Divide(2,2);
+    c2->cd(1);
+    hs5->Draw();
+    c2->cd(2);
+    hRme->Draw();
+    
+    c2->cd(3);
+    hRmm->Draw();
+    
+    c2->cd(4);
+    hRmt->Draw();
+    */
     
     /*
-    //Draw histograms in 3 canvases, one for each variable
+    
+     //Draw histograms in 3 canvases, one for each variable
    TCanvas *c1 = new TCanvas("c1","pT");
     c1->Divide(2,2);
     c1->cd(1);
