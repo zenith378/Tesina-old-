@@ -32,22 +32,22 @@ void Events::Loop()
     THStack *hs4 = new THStack("hs4","reconstructedElectron pT");
     THStack *hs5 = new THStack("hs5","reconstructedMuon pT");
     
-    TH1F* h1 = new TH1F("h1", "electron pT", 50, 0.0, 350.0);
-    TH1F* h2 = new TH1F("h2", "electron phi", 50, -4, 4);
-    TH1F* h3 = new TH1F("h3", "electron eta", 50, -6.5, 6.5);
-    TH1F* h4 = new TH1F("h4", "muon pT", 50, 0.0, 350.0);
-    TH1F* h5 = new TH1F("h5", "muon phi", 50, -4, 4);
-    TH1F* h6 = new TH1F("h6", "muon eta", 50, -6.5, 6.5);
-    TH1F* h7 = new TH1F("h7", "tau pT", 50, 0.0, 350.0);
-    TH1F* h8 = new TH1F("h8", "tau phi", 50, -4, 4);
-    TH1F* h9 = new TH1F("h9", "tau eta", 50, -6.5, 6.5);
+    TH1F* h1 = new TH1F("h1", "electron pT", 80, 0.0, 250.0);
+    TH1F* h2 = new TH1F("h2", "electron phi", 80, -4, 4);
+    TH1F* h3 = new TH1F("h3", "electron eta", 80, -6.5, 6.5);
+    TH1F* h4 = new TH1F("h4", "muon pT", 80, 0.0, 250.0);
+    TH1F* h5 = new TH1F("h5", "muon phi", 80, -4, 4);
+    TH1F* h6 = new TH1F("h6", "muon eta", 80, -6.5, 6.5);
+    TH1F* h7 = new TH1F("h7", "tau pT", 80, 0.0, 250.0);
+    TH1F* h8 = new TH1F("h8", "tau phi", 80, -4, 4);
+    TH1F* h9 = new TH1F("h9", "tau eta", 80, -6.5, 6.5);
     
-    TH1F* hRee = new TH1F("hRee", "Reconstructed electron pT, from electron event", 50, 0.0, 350.0);
-    TH1F* hRem = new TH1F("hRem", "Reconstructed electron pT, from muon event", 50, 0.0, 350.0);
-    TH1F* hRet = new TH1F("hRet", "Reconstructed electron pT, from tau event", 50, 0.0, 350.0);
-    TH1F* hRme = new TH1F("hRme", "Reconstructed muon pT, from electron event", 50, 0.0, 350.0);
-    TH1F* hRmm = new TH1F("hRmm", "Reconstructed muon pT, from muon event", 50, 0.0, 350.0);
-    TH1F* hRmt = new TH1F("hRmt", "Reconstructed muon pT, from tau event", 50, 0.0, 350.0);
+    TH1F* hRee = new TH1F("hRee", "Reconstructed electron pT, from electron event", 80, 0.0, 250.0);
+    TH1F* hRem = new TH1F("hRem", "Reconstructed electron pT, from muon event", 80, 0.0, 250.0);
+    TH1F* hRet = new TH1F("hRet", "Reconstructed electron pT, from tau event", 80, 0.0, 250.0);
+    TH1F* hRme = new TH1F("hRme", "Reconstructed muon pT, from electron event", 80, 0.0, 250.0);
+    TH1F* hRmm = new TH1F("hRmm", "Reconstructed muon pT, from muon event", 80, 0.0, 250.0);
+    TH1F* hRmt = new TH1F("hRmt", "Reconstructed muon pT, from tau event", 80, 0.0, 250.0);
     
     int ilept=-1; // lepton index in LHEPart collection
     
@@ -59,14 +59,14 @@ void Events::Loop()
     
     
     
-    
+    /*
     TTree* top = new TTree("top", "top"); //initailize a Tree
     
     top->Branch("pT",&pt,"electron:muon:tau"); //divide the branch pT in three leaf, one for every particle
     top->Branch("phi",&phi,"electron:muon:tau"); //same as above
     top->Branch("eta",&eta,"electron:muon:tau"); //''
     //top->Branch("electron pT",&hept,"electronpT");
-    
+    */
 //TO FURTHER IMPLEMENT: IN THE SAME FILE CREATE A TREE FOR THE TBAR FILE
     
     
@@ -238,9 +238,9 @@ void Events::Loop()
     hs4->Add(hRee);
     hs4->Add(hRem);
     hs4->Add(hRet);
-
-    hs5->Add(hRme);
+    
     hs5->Add(hRmm);
+    hs5->Add(hRme);
     hs5->Add(hRmt);
     
     
@@ -249,7 +249,7 @@ void Events::Loop()
     hs3->Write();
     hs4->Write();
     hs5->Write();
-    /*
+    
     
     TCanvas *c1 = new TCanvas("c1","Electron pT");
     c1->Divide(2,2);
@@ -270,14 +270,14 @@ void Events::Loop()
     c2->cd(1);
     hs5->Draw();
     c2->cd(2);
-    hRme->Draw();
+    hRmm->Draw();
     
     c2->cd(3);
-    hRmm->Draw();
+    hRme->Draw();
     
     c2->cd(4);
     hRmt->Draw();
-    */
+    
     
     /*
     
@@ -323,7 +323,7 @@ void Events::Loop()
     */
     
     //Write and close file
-    output->Write();
+    //output->Write();
     output->Close();
     
     cout <<" TOTALE EVENTI " <<nev<<endl;
