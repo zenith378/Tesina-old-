@@ -2914,10 +2914,35 @@ public :
    TBranch        *b_HLT_IsoTrackHE;   //!
    TBranch        *b_HLT_IsoTrackHB;   //!
    TBranch        *b_HLTriggerFinalPath;   //!
+    
+   //Declaration of personal variables
 
+    THStack **hs[7]; //Define array of stacekd histograms
+    
+    TH1F **h[3]; //define array of histo pt for each particle
+    
+    
+    TH1F **hR[6]; //array of histo, rct events
+
+    
+    TH1F **hRi[6]; //array of histo, reconstructed isolated events
+
+    
+    TFile* output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
+
+    
+    
    Events(TTree *tree=0);
    virtual ~Events();
    virtual Int_t    Cut(Long64_t entry);
+   virtual Int_t    TypeIndex();
+   virtual void     VarDef();
+   virtual void     Filling(Int_t ind, Int_t ilept);
+   virtual void     Coloring();
+   virtual void     MyStacking();
+   virtual void     WriteToFile();
+   virtual void     MyDrawing();
+
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
@@ -4441,6 +4466,7 @@ Bool_t Events::Notify()
 
    return kTRUE;
 }
+
 
 void Events::Show(Long64_t entry)
 {
