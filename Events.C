@@ -19,18 +19,18 @@ Int_t Events::TypeIndex()
 
 void Events::VarDef()
 {
-    THStack *hs[7]; //Define array of stacekd histograms
-    hs[0] = new THStack("hs1","pT stacked");
+    THStack **hs[7]; //Define array of stacekd histograms
+    *hs[0] = new THStack("hs1","pT stacked");
 
-    hs[1] = new THStack("hs4","Electron pT, from rct Particles");
-    hs[2] = new THStack("hs5","Muon pT, from rct Particles");
-    hs[3] = new THStack("hs4","Tau pT, from rct Particles");
+    *hs[1] = new THStack("hs4","Electron pT, from rct Particles");
+    *hs[2] = new THStack("hs5","Muon pT, from rct Particles");
+    *hs[3] = new THStack("hs4","Tau pT, from rct Particles");
     
-    hs[4] = new THStack("hs4","Electron pT, from iso rct Particles");
-    hs[5] = new THStack("hs5","Muon pT, from iso rct Particles");
-    hs[6] = new THStack("hs4","Tau pT, from iso rct Particles");
+    *hs[4] = new THStack("hs4","Electron pT, from iso rct Particles");
+    *hs[5] = new THStack("hs5","Muon pT, from iso rct Particles");
+    *hs[6] = new THStack("hs4","Tau pT, from iso rct Particles");
     
-    
+  
     
     TH1F **h[3]; //define array of histo pt for each particle
     *h[0] = new TH1F("h1", "electron pT", 80, 0.0, 250.0);
@@ -41,26 +41,26 @@ void Events::VarDef()
 
     
     
-    TH1F *hR[6]; //array of histo, rct events
-    hR[0] = new TH1F("hRee", "Electron pT, from rct electron event", 80, 0.0, 250.0); //hRee
-    hR[1] = new TH1F("hRem", "Electron pT, from rct muon event", 80, 0.0, 250.0); //hRem
+    TH1F **hR[6]; //array of histo, rct events
+    *hR[0] = new TH1F("hRee", "Electron pT, from rct electron event", 80, 0.0, 250.0); //hRee
+    *hR[1] = new TH1F("hRem", "Electron pT, from rct muon event", 80, 0.0, 250.0); //hRem
     
-    hR[2] = new TH1F("hRme", "Muon pT, from rct electron event", 80, 0.0, 250.0); //hRme
-    hR[3] = new TH1F("hRmm", "Muon pT, from rct muon event", 80, 0.0, 250.0); //hRmm
+    *hR[2] = new TH1F("hRme", "Muon pT, from rct electron event", 80, 0.0, 250.0); //hRme
+    *hR[3] = new TH1F("hRmm", "Muon pT, from rct muon event", 80, 0.0, 250.0); //hRmm
     
-    hR[4] = new TH1F("hRte", "Tau pT, from rct electron event", 80, 0.0, 250.0); //hRte
-    hR[5] = new TH1F("hRtm", "Tau pT, from rct muon event", 80, 0.0, 250.0); //hRtm
+    *hR[4] = new TH1F("hRte", "Tau pT, from rct electron event", 80, 0.0, 250.0); //hRte
+    *hR[5] = new TH1F("hRtm", "Tau pT, from rct muon event", 80, 0.0, 250.0); //hRtm
     
     
-    TH1F *hRi[6]; //array of histo, reconstructed isolated events
-    hRi[0] = new TH1F("hRiee", "Electron pT, from rct iso electron event", 80, 0.0, 250.0);
-    hRi[1] = new TH1F("hRiem", "Electron pT, from rct iso muon event", 80, 0.0, 250.0);
+    TH1F **hRi[6]; //array of histo, reconstructed isolated events
+    *hRi[0] = new TH1F("hRiee", "Electron pT, from rct iso electron event", 80, 0.0, 250.0);
+    *hRi[1] = new TH1F("hRiem", "Electron pT, from rct iso muon event", 80, 0.0, 250.0);
     
-    hRi[2] = new TH1F("hRime", "Muon pT, from rct iso electron event", 80, 0.0, 250.0);
-    hRi[3] = new TH1F("hRimm", "Muon pT, from rct iso muon event", 80, 0.0, 250.0);
+    *hRi[2] = new TH1F("hRime", "Muon pT, from rct iso electron event", 80, 0.0, 250.0);
+    *hRi[3] = new TH1F("hRimm", "Muon pT, from rct iso muon event", 80, 0.0, 250.0);
     
-    hRi[4] = new TH1F("hRite", "Tau pT, from rct iso electron event", 80, 0.0, 250.0);
-    hRi[5] = new TH1F("hRitm", "Tau pT, from rct iso muon event", 80, 0.0, 250.0);
+    *hRi[4] = new TH1F("hRite", "Tau pT, from rct iso electron event", 80, 0.0, 250.0);
+    *hRi[5] = new TH1F("hRitm", "Tau pT, from rct iso muon event", 80, 0.0, 250.0);
     
     
     TFile* output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
@@ -97,14 +97,14 @@ void Events::VarDef()
 
 void Events::Filling(Int_t ind, Int_t ilept)
 {
-    h[ind]->Fill(LHEPart_pt[ilept]); //fill histogram for pt
+    (*(h[ind]))->Fill(LHEPart_pt[ilept]); //fill histogram for pt
     if(nElectron>0){ //if there is at least one reconstructed Electron
-        hR[ind]->Fill(Electron_pt[0]); //store pT value of Electron
-        if(Electron_pfRelIso03_all[0]<0.15) hRi[ind]->Fill(Electron_pt[0]);
+        (*(hR[ind]))->Fill(Electron_pt[0]); //store pT value of Electron
+        if(Electron_pfRelIso03_all[0]<0.15) (*(hRi[ind]))->Fill(Electron_pt[0]);
     }
     if (nMuon>0){ //Muon
-        hR[ind+1]->Fill(Muon_pt[0]);
-        if(Muon_pfRelIso03_all[0]<0.15) hRi[ind+1]->Fill(Muon_pt[0]);
+        (*(hR[ind+1]))->Fill(Muon_pt[0]);
+        if(Muon_pfRelIso03_all[0]<0.15) (*(hRi[ind+1]))->Fill(Muon_pt[0]);
     }
     return;
 }
@@ -114,18 +114,18 @@ void Events::Coloring() //COLOR THE HISTO GIVEN THE PARTICLE
 {
     //COLOR THE HISTOGRAM
     for (int i=0; i<5;  i+=2) { //Electron Blue
-        hR[i]->SetFillColor(38);
-        hRi[i]->SetFillColor(38);
+        (*(hR[i]))->SetFillColor(38);
+        (*(hRi[i]))->SetFillColor(38);
     }
-    h[0]->SetFillColor(38);
+    (*(h[0]))->SetFillColor(38);
     
     for (int i=1; i<6;  i+=2) { //Muon Red
-        hR[i]->SetFillColor(46);
-        hRi[i]->SetFillColor(46);
+        (*(hR[i]))->SetFillColor(46);
+        (*(hRi[i]))->SetFillColor(46);
     }
-    h[1]->SetFillColor(46);
+    (*(h[1]))->SetFillColor(46);
 
-    h[2]->SetFillColor(30); //Tau Green
+    (*(h[2]))->SetFillColor(30); //Tau Green
     return;
 }
 
@@ -133,14 +133,14 @@ void Events::MyStacking() //STACK ALL THE HISTO
 {
     //STACK ALL THE HISTOGRAMS
     for (int i=0; i<4; i++) { //PT STACKING IN HS[0]
-        hs[0]->Add(h[i]);
+        (*(hs[0]))->Add(*(h[i]));
     }
     
     for (int i=1,j=0; i<4; i++,j+=2) { // RECONSTROCTUD STACKING HS[1,2,3]
-        hs[i]->Add(hR[j]);
-        hs[i]->Add(hR[j+1]);
-        hs[i+3]->Add(hRi[j]); //AND ISO REC HS[4,5,6]
-        hs[i+3]->Add(hR[j+1]);
+        (*(hs[i]))->Add(*(hR[j]));
+        (*(hs[i]))->Add(*(hR[j+1]));
+        (*(hs[i+3]))->Add(*(hRi[j])); //AND ISO REC HS[4,5,6]
+        (*(hs[i+3]))->Add(*(hRi[j+1]));
     }
     return;
     
@@ -149,26 +149,26 @@ void Events::MyStacking() //STACK ALL THE HISTO
 void Events::WriteToFile() //Write to File function
 {
     for (int i=0; i<3; i++) { //pt
-        h[i]->Write();
+        (*(h[i]))->Write();
     }
     
     for (int i=0; i<6; i++) { //rec prtc
-        hR[i]->Write();
+        (*(hR[i]))->Write();
     }
     
     for (int i=0; i<6; i++) { //rec iso prtc
-        hRi[i]->Write();
+        (*(hRi[i]))->Write();
     }
     
     for (int i=0; i<7; i++) { //stacked histo
-        hs[i]->Write();
+        (*(hs[i]))->Write();
     }
     return;
 }
 
 void Events::MyDrawing()
 {
-    TCanvas *c[4];
+    TCanvas **c[4];
     
     *c[0] = new TCanvas("c0","pT stacked");
     *c[1] = new TCanvas("c1","Electron pT");
@@ -176,26 +176,26 @@ void Events::MyDrawing()
     *c[3] = new TCanvas("c3","Tau pT");
 
 
-    c[0]->cd(1);
-    hs[0]->Draw();
+    (*(c[0]))->cd(1);
+    (*(hs[0]))->Draw();
     
     for (int i=1,j=0; i<4; i++,j+=2) { //Draw stacked histograms iso and rec particles
-        c[i]->Divide(3,2);
-        c[i]->cd(1);
-        hs[i]->Draw();
-        c1->cd(2);
-        hR[j]->Draw();
+        (*(c[i]))->Divide(3,2);
+        (*(c[i]))->cd(1);
+        (*(hs[i]))->Draw();
+        (*(c[i]))->cd(2);
+        (*(hR[j]))->Draw();
         
-        c1->cd(3);
-        hR[j+1]->Draw();
+        (*(c[i]))->cd(3);
+        (*(hR[j+1]))->Draw();
         
-        c1->cd(4);
-        hs[i+3]->Draw();
-        c1->cd(5);
-        hRi[j]->Draw();
+        (*(c[i]))->cd(4);
+        (*(hs[i+3]))->Draw();
+        (*(c[i]))->cd(5);
+        (*(hRi[j]))->Draw();
         
-        c1->cd(6);
-        hRi[j+1]->Draw();
+        (*(c[i]))->cd(6);
+        (*(hRi[j+1]))->Draw();
 
 
     }
