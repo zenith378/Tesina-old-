@@ -2924,7 +2924,7 @@ public :
    virtual void     ReconStack();
    virtual void     IsoStack();
    virtual void     WriteToFile();
-
+   virtual void     MyInit();
 
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -2949,7 +2949,9 @@ private :
     
     TFile* output; //create a new file root
     
+    TTree* top; //create a new tree top
     
+    float RctIsoPt[6];
 
 };
 
@@ -2969,6 +2971,7 @@ Events::Events(TTree *tree) : fChain(0)
 
    }
    Init(tree);
+   MyInit();
 }
 
 Events::~Events()
@@ -4458,6 +4461,11 @@ void Events::Init(TTree *tree)
    Notify();
 
     
+    
+}
+
+void Events::MyInit()
+{
     hs[0] = new THStack("hs0","pT stacked");
     
     hs[1] = new THStack("hs1","Rct Particles pT, from electron events");
@@ -4470,9 +4478,9 @@ void Events::Init(TTree *tree)
     
     hs[7] = new THStack("hs7","Electron pT, from rcstd iso particles");
     hs[8] = new THStack("hs8","Muon pT, from rcstd iso particles");
-
     
-
+    
+    
     h[0] = new TH1F("h0", "Electron pT", 80, 0.0, 250.0);
     
     h[1] = new TH1F("h1", "Muon pT", 80, 0.0, 250.0);
@@ -4481,7 +4489,7 @@ void Events::Init(TTree *tree)
     
     
     
-
+    
     hR[0] = new TH1F("hRee", "Rct Electron pT, from electron events", 80, 0.0, 250.0); //hRee Rct electron pT from electron pt
     hR[1] = new TH1F("hRem", "Rct Muon pT, from electron events", 80, 0.0, 250.0); //hRem
     
@@ -4492,7 +4500,7 @@ void Events::Init(TTree *tree)
     hR[5] = new TH1F("hRtm", "Rct Muon pT, from tau events", 80, 0.0, 250.0); //hRtm
     
     
-
+    
     hRi[0] = new TH1F("hRiee", "Rct iso Electron pT, from ele events", 80, 0.0, 250.0);
     hRi[1] = new TH1F("hRiem", "Rct iso Muon pT, from ele events", 80, 0.0, 250.0);
     
@@ -4505,8 +4513,18 @@ void Events::Init(TTree *tree)
     
     output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
     
+    for (int i=0; i<6; i++) {
+        RctIsoPt[i]=0;
+    }
     
+    top = new TTree("top", "top"); //initialize the tree
     
+    top->Branch("RctIsoPtee", &RctIsoPt[0]);
+    top->Branch("RctIsoPtem", &RctIsoPt[1]);
+    top->Branch("RctIsoPtme", &RctIsoPt[2]);
+    top->Branch("RctIsoPtmm", &RctIsoPt[3]);
+    top->Branch("RctIsoPtte", &RctIsoPt[4]);
+    top->Branch("RctisoPttm", &RctIsoPt[5]);
 }
 
 Bool_t Events::Notify()

@@ -57,12 +57,21 @@ void Events::Filling(Int_t ind, Int_t ilept)
     ((h[ind]))->Fill(LHEPart_pt[ilept]); //fill histogram for pt
     if(nElectron>0){ //if there is at least one reconstructed Electron
         ((hR[2*ind]))->Fill(Electron_pt[0]); //store pT value of Electron
-        if(Electron_pfRelIso03_all[0]<0.15) ((hRi[2*ind]))->Fill(Electron_pt[0]);
+        if(Electron_pfRelIso03_all[0]<0.15){
+            ((hRi[2*ind]))->Fill(Electron_pt[0]);
+            RctIsoPt[2*ind]=Electron_pt[0];
+            top->Fill();
+        }
     }
     if (nMuon>0){ //Muon
         ((hR[2*ind+1]))->Fill(Muon_pt[0]);
-        if(Muon_pfRelIso03_all[0]<0.15) ((hRi[2*ind+1]))->Fill(Muon_pt[0]);
+        if(Muon_pfRelIso03_all[0]<0.15){
+            ((hRi[2*ind+1]))->Fill(Muon_pt[0]);
+            RctIsoPt[2*ind+1]=Muon_pt[0];
+            top->Fill();
+        }
     }
+    
     return;
 }
 
@@ -213,16 +222,17 @@ void Events::WriteToFile() //Write to File function
         ((hRi[i]))->Write();
     }
     
-    for (int i=0; i<7; i++) { //stacked histo
+    for (int i=0; i<9; i++) { //stacked histo
         ((hs[i]))->Write();
     }
+    top->Write();
     return;
 }
 
 
 
 
-void Events::Loop()
+void Events::Loop() //main fucntion, actually
 {
 
     
@@ -344,10 +354,10 @@ void Events::Loop()
     IsoStack();
 
     //Write and close file
-    //output->Write();
-    //output->Close();
+
     WriteToFile();
-    
+    output->Write();
+    output->Close();
     
     cout <<" TOTALE EVENTI " <<nev<<endl;
     cout << " Numero muoni " <<nmu<< " | n_mu/n_tau="<< (double) nmu/ntau<<endl;
