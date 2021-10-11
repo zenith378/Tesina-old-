@@ -2915,33 +2915,16 @@ public :
    TBranch        *b_HLT_IsoTrackHB;   //!
    TBranch        *b_HLTriggerFinalPath;   //!
     
-   //Declaration of personal variables
-
-    THStack **hs[7]; //Define array of stacekd histograms
-    
-    TH1F **h[3]; //define array of histo pt for each particle
-    
-    
-    TH1F **hR[6]; //array of histo, rct events
-
-    
-    TH1F **hRi[6]; //array of histo, reconstructed isolated events
-
-    
-    TFile* output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
-
-    
     
    Events(TTree *tree=0);
    virtual ~Events();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    TypeIndex();
-   virtual void     VarDef();
    virtual void     Filling(Int_t ind, Int_t ilept);
-   virtual void     Coloring();
-   virtual void     MyStacking();
+   virtual void     ReconStack();
+   virtual void     IsoStack();
    virtual void     WriteToFile();
-   virtual void     MyDrawing();
+
 
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -2949,6 +2932,25 @@ public :
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+    
+    
+private :
+    //Declaration of personal variables
+    
+    THStack *hs[9]; //Define array of stacekd histograms
+    
+    TH1F *h[3]; //define array of histo pt for each particle
+    
+    
+    TH1F *hR[6]; //array of histo, rct events
+    
+    TH1F *hRi[6]; //array of histo, Rct isolated events
+    
+    
+    TFile* output; //create a new file root
+    
+    
+
 };
 
 #endif
@@ -4454,11 +4456,62 @@ void Events::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_IsoTrackHB", &HLT_IsoTrackHB, &b_HLT_IsoTrackHB);
    fChain->SetBranchAddress("HLTriggerFinalPath", &HLTriggerFinalPath, &b_HLTriggerFinalPath);
    Notify();
+
+    
+    hs[0] = new THStack("hs0","pT stacked");
+    
+    hs[1] = new THStack("hs1","Rct Particles pT, from electron events");
+    hs[2] = new THStack("hs2","Rct Particles pT, from muon events");
+    hs[3] = new THStack("hs3","Rct Particles pT, from tau events");
+    
+    hs[4] = new THStack("hs4","Rct iso Particles pT, from electron events");
+    hs[5] = new THStack("hs5","Rct iso Particles pT, from muon events");
+    hs[6] = new THStack("hs6","Rct iso Particles pT, from tau events");
+    
+    hs[7] = new THStack("hs7","Electron pT, from rcstd iso particles");
+    hs[8] = new THStack("hs8","Muon pT, from rcstd iso particles");
+
+    
+
+    h[0] = new TH1F("h0", "Electron pT", 80, 0.0, 250.0);
+    
+    h[1] = new TH1F("h1", "Muon pT", 80, 0.0, 250.0);
+    
+    h[2] = new TH1F("h2", "Tau pT", 80, 0.0, 250.0);
+    
+    
+    
+
+    hR[0] = new TH1F("hRee", "Rct Electron pT, from electron events", 80, 0.0, 250.0); //hRee Rct electron pT from electron pt
+    hR[1] = new TH1F("hRem", "Rct Muon pT, from electron events", 80, 0.0, 250.0); //hRem
+    
+    hR[2] = new TH1F("hRme", "Rct Electron pT, from muon events", 80, 0.0, 250.0); //hRme
+    hR[3] = new TH1F("hRmm", "Rct Muon pT, from muon events", 80, 0.0, 250.0); //hRmm
+    
+    hR[4] = new TH1F("hRte", "Rct Electron pT, from tau events", 80, 0.0, 250.0); //hRte
+    hR[5] = new TH1F("hRtm", "Rct Muon pT, from tau events", 80, 0.0, 250.0); //hRtm
+    
+    
+
+    hRi[0] = new TH1F("hRiee", "Rct iso Electron pT, from ele events", 80, 0.0, 250.0);
+    hRi[1] = new TH1F("hRiem", "Rct iso Muon pT, from ele events", 80, 0.0, 250.0);
+    
+    hRi[2] = new TH1F("hRime", "Rct iso Electron pT, from muon events", 80, 0.0, 250.0);
+    hRi[3] = new TH1F("hRimm", "Rct iso Muon pT, from muon events", 80, 0.0, 250.0);
+    
+    hRi[4] = new TH1F("hRite", "Rct iso Electron pT, from tau events", 80, 0.0, 250.0);
+    hRi[5] = new TH1F("hRitm", "Rct iso Muon pT, from tau events", 80, 0.0, 250.0);
+    
+    
+    output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
+    
+    
+    
 }
 
 Bool_t Events::Notify()
 {
-   // The Notify() function is called when a new file is opened. This
+    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
    // is started when using PROOF. It is normally not necessary to make changes
    // to the generated code, but the routine can be extended by the
