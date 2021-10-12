@@ -4466,7 +4466,7 @@ void Events::Init(TTree *tree)
 
 void Events::MyInit()
 {
-    hs[0] = new THStack("hs0","pT stacked");
+    hs[0] = new THStack("hs0","pT stacked, without cuts"); //without cuts (just lept_type), from h
     
     hs[1] = new THStack("hs1","Rct Particles pT, from electron events");
     hs[2] = new THStack("hs2","Rct Particles pT, from muon events");
@@ -4481,7 +4481,7 @@ void Events::MyInit()
     
     
     
-    h[0] = new TH1F("h0", "Electron pT", 80, 0.0, 250.0);
+    h[0] = new TH1F("h0", "Electron pT", 80, 0.0, 250.0); //without cuts (just lept_type)
     
     h[1] = new TH1F("h1", "Muon pT", 80, 0.0, 250.0);
     
@@ -4518,6 +4518,8 @@ void Events::MyInit()
     }
     
     top = new TTree("top", "top"); //initialize the tree
+    
+    //To further implement: a tree for tbar events
     
     top->Branch("RctIsoPtee", &RctIsoPt[0]);
     top->Branch("RctIsoPtem", &RctIsoPt[1]);
