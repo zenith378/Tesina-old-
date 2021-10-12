@@ -2,7 +2,13 @@
 #include "Events.h"
 #include <TH2.h>
 #include <TStyle.h>
-#include <TCanvas.h>
+#include <iostream>
+
+
+int nev=0; // number of events
+int nmu=0; // number of muons
+int nele=0; //number of electrons
+int ntau=0; // number of taus
 
 
 
@@ -89,12 +95,7 @@ void Events::ReconStack()
     
 // DRAW THE RECON HISTOGRAM
     
-    TCanvas *c[4];
-    
-    c[0] = new TCanvas("c0","pT stacked, w/o cuts");
-    c[1] = new TCanvas("c1","Electron event pT");
-    c[2] = new TCanvas("c2","Muon event pT");
-    c[3] = new TCanvas("c3","Tau event pT");
+  
 
 
 
@@ -134,6 +135,13 @@ void Events::ReconStack()
 
 
     }
+    
+    c[0]->SaveAs("./Graphs/new/pT_stacked_woCuts.pdf");
+    c[1]->SaveAs("./Graphs/new/pT_stacked_RctIso_Ele.pdf");
+    c[2]->SaveAs("./Graphs/new/pT_stacked_RctIso_Muon.pdf");
+    c[3]->SaveAs("./Graphs/new/pT_stacked_RctIso_Tau.pdf");
+    
+    
 
     return;
 }
@@ -164,10 +172,7 @@ void Events::IsoStack()
     
     //PLOT IN TWO CANVAS
     
-    TCanvas *d[2];
-    
-    d[0] = new TCanvas("c3","Electron pT stacked");
-    d[1] = new TCanvas("c4","Muon pT stacked");
+ 
     
     for (int i=0, j=0; i<2; i++,j++) {
         (d[i])->Divide(2,2);
@@ -182,7 +187,8 @@ void Events::IsoStack()
         (hs[j+7])->Draw(); //down right stacked
     }
     
-
+    d[0]->SaveAs("./Graphs/new/Electron_pT_stacked_RctIso.pdf");
+    d[1]->SaveAs("./Graphs/new/Muon_pT_stacked_RctIso.pdf");
     
 }
 
@@ -228,10 +234,7 @@ void Events::Loop() //main fucntion, actually
     
     //VarDef();
 
-    int nev=0; // number of events
-    int nmu=0; // number of muons
-    int nele=0; //number of electrons
-    int ntau=0; // number of taus
+
     Long64_t nbytes = 0, nb = 0;
     
     //nentries=100;
@@ -279,23 +282,30 @@ void Events::Loop() //main fucntion, actually
         
     }
 
-    ReconStack(); //do the first
 
-
-    IsoStack();
-
-
-    WriteToFile();
-
-    
-    cout <<" TOTALE EVENTI " <<nev<<endl;
-    cout << " Numero muoni " <<nmu<< " | n_mu/n_tau="<< (double) nmu/ntau<<endl;
-    cout << " Numero elettroni " <<nele<< " | n_ele/n_tau="<< (double) nele/ntau<<endl;
-    cout << " Numero tau " <<ntau<< " | 2*n_tau/(n_ele+n_mu)="<< (double) 2*ntau/(nele+nmu)<<endl;
 }
 
 
-
+int main() {
+    
+    Events t;
+    
+    t.Loop();
+    
+    t.ReconStack(); //do the first
+    
+    
+    t.IsoStack();
+    
+    
+    t.WriteToFile();
+    
+    
+    std::cout <<" TOTALE EVENTI " <<nev<<std::endl;
+    std::cout << " Numero muoni " <<nmu<< " | n_mu/n_tau="<< (double) nmu/ntau<<std::endl;
+    std::cout << " Numero elettroni " <<nele<< " | n_ele/n_tau="<< (double) nele/ntau<<std::endl;
+    std::cout << " Numero tau " <<ntau<< " | 2*n_tau/(n_ele+n_mu)="<< (double) 2*ntau/(nele+nmu)<<std::endl;
+}
 
 //TO DO:
 

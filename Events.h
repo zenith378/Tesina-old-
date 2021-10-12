@@ -15,6 +15,10 @@
 #include "TProfile.h"
 #include "TRandom.h"
 #include "TTree.h"
+#include "THStack.h"
+#include <TCanvas.h>
+
+
 
 // Header file for the classes stored in the TTree if any.
 
@@ -2952,6 +2956,11 @@ private :
     TTree* top; //create a new tree top
     
     float RctIsoPt[6];
+    
+    TCanvas *c[4];
+    
+    TCanvas *d[2];
+    
 
 };
 
@@ -4516,6 +4525,17 @@ void Events::MyInit()
     for (int i=0; i<6; i++) {
         RctIsoPt[i]=0;
     }
+    
+    
+    c[0] = new TCanvas("c0","pT stacked, w/o cuts");
+    c[1] = new TCanvas("c1","Electron event pT");
+    c[2] = new TCanvas("c2","Muon event pT");
+    c[3] = new TCanvas("c3","Tau event pT");
+   
+    
+    d[0] = new TCanvas("d0","Electron pT stacked");
+    d[1] = new TCanvas("d1","Muon pT stacked");
+ 
     
     top = new TTree("top", "top"); //initialize the tree
     
