@@ -8,6 +8,8 @@
 #ifndef Events_h
 #define Events_h
 
+#include "bayesian_blocks.hpp"
+#include "bayesian_blocks_root.hpp"
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -2929,6 +2931,8 @@ public :
    virtual void     IsoStack();
    virtual void     WriteToFile();
    virtual void     MyInit();
+   virtual void     BayesRebin();
+
 
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -2938,7 +2942,7 @@ public :
    virtual void     Show(Long64_t entry = -1);
     
     
-private :
+//private :
     //Declaration of personal variables
     
     THStack *hs[9]; //Define array of stacekd histograms
@@ -2950,6 +2954,10 @@ private :
     
     TH1F *hRi[6]; //array of histo, Rct isolated events
     
+    //TH1F* h_rb[3];
+    
+    
+    TH1F *hRi_rb[6];
     
     TFile* output; //create a new file root
     
@@ -4510,7 +4518,7 @@ void Events::MyInit()
     
     
     
-    hRi[0] = new TH1F("hRiee", "Rct iso Electron pT, from ele events", 80, 0.0, 250.0);
+    hRi[0] = new TH1F("hRiee", "Rct iso Electron pT, from ele events", 80, 0, 250);
     hRi[1] = new TH1F("hRiem", "Rct iso Muon pT, from ele events", 80, 0.0, 250.0);
     
     hRi[2] = new TH1F("hRime", "Rct iso Electron pT, from muon events", 80, 0.0, 250.0);
@@ -4519,6 +4527,31 @@ void Events::MyInit()
     hRi[4] = new TH1F("hRite", "Rct iso Electron pT, from tau events", 80, 0.0, 250.0);
     hRi[5] = new TH1F("hRitm", "Rct iso Muon pT, from tau events", 80, 0.0, 250.0);
     
+    
+    
+    //REBINNED HISToGRAMS
+    
+    /*
+    h_rb[0] = new TH1F("h0_rb", "Electron pT", 80, 0.0, 250.0); //without cuts (just lept_type)
+    
+    h_rb[1] = new TH1F("h1_rb", "Muon pT", 80, 0.0, 250.0);
+    
+    h_rb[2] = new TH1F("h2_rb", "Tau pT", 80, 0.0, 250.0);
+    
+    
+    
+
+    
+    hRi_rb[0] = new TH1F("hRiee_rb", "Rct iso Electron pT, from ele events", 80, 0.0, 250.0);
+    hRi_rb[1] = new TH1F("hRiem_rb", "Rct iso Muon pT, from ele events", 80, 0.0, 250.0);
+    
+    hRi_rb[2] = new TH1F("hRime_rb", "Rct iso Electron pT, from muon events", 80, 0.0, 250.0);
+    hRi_rb[3] = new TH1F("hRimm_rb", "Rct iso Muon pT, from muon events", 80, 0.0, 250.0);
+    
+    hRi_rb[4] = new TH1F("hRite_rb", "Rct iso Electron pT, from tau events", 80, 0.0, 250.0);
+    hRi_rb[5] = new TH1F("hRitm_rb", "Rct iso Muon pT, from tau events", 80, 0.0, 250.0);
+
+    */
     
     output = new TFile("./output/output_T.root","RECREATE"); //create a new file root
     

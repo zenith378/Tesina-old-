@@ -3,7 +3,8 @@
 #include <TH2.h>
 #include <TStyle.h>
 #include <iostream>
-
+#include "bayesian_blocks.hpp"
+#include "bayesian_blocks_root.hpp"
 
 int nev=0; // number of events
 int nmu=0; // number of muons
@@ -17,8 +18,9 @@ int ntau=0; // number of taus
 Int_t Events::TypeIndex()
 {
     for (int i=0; i<=nLHEPart; i++) { //loop over the particles
-        
-        if(abs(LHEPart_pdgId[i])==11||abs(LHEPart_pdgId[i])==13||abs(LHEPart_pdgId[i])==15)  return i; //if a particle is a lepton, it returns the index
+
+        if(abs(LHEPart_pdgId[i])==11||abs(LHEPart_pdgId[i])==13||abs(LHEPart_pdgId[i])==15)
+        return i;  //if a particle is a lepton, it returns the index
     }
     return -1; //else return -1
 }
@@ -26,36 +28,41 @@ Int_t Events::TypeIndex()
 
 void Events::Filling(Int_t ind, Int_t ilept)
 {
-    
+
     ((h[ind]))->Fill(LHEPart_pt[ilept]); //fill histogram for pt
-    
+
     if(nElectron>0){ //if there is at least one reconstructed Electron
         ((hR[2*ind]))->Fill(Electron_pt[0]); //store pT value of Electron
-        
-        
-        if(Electron_pfRelIso03_all[0]<0.15){ //cuts on the cone, i want an isolated particle
+
+
+        if(Electron_pfRelIso03_all[0]<0.15&&Electron_cutBased[0]==4){ //cuts on the cone, i want an
+                                              //isolated particle
             ((hRi[2*ind]))->Fill(Electron_pt[0]); //fill histogram
-            
+
             RctIsoPt[2*ind]=Electron_pt[0]; //store value for tree
             top->Fill(); //fill tree
         }
     }
     if (nMuon>0){ //Muon, structure similar as above
         ((hR[2*ind+1]))->Fill(Muon_pt[0]);
-        if(Muon_pfRelIso03_all[0]<0.15){
+        if(Muon_pfRelIso03_all[0]<0.15&&Muon_tightId[0]==true){
             ((hRi[2*ind+1]))->Fill(Muon_pt[0]);
             RctIsoPt[2*ind+1]=Muon_pt[0];
             top->Fill();
         }
     }
-    
+
     return;
 }
 
-//generate three plots, one for lept_type (event type), containing the Reconstructed (and isolated) Electron and Muon pT, and the two stacked together
+//generate three plots, one for lept_type (event type), containing the
+//Reconstructed (and isolated) Electron and Muon pT, and the two stacked together
 
 
-//generate one additional plot, pT of particle (divided by event type) without cuts stacked together
+
+
+//generate one additional plot, pT of particle (divided by event type)
+//without cuts stacked together
 
 void Events::ReconStack()
 
@@ -67,129 +74,145 @@ void Events::ReconStack()
         ((hRi[i]))->SetFillColor(38);
     }
     ((h[0]))->SetFillColor(38); //without cuts
-    
+
     for (int i=1; i<6;  i+=2) { //Muon Red
         ((hR[i]))->SetFillColor(46);
         ((hRi[i]))->SetFillColor(46);
     }
     (h[1])->SetFillColor(46);
-    
+
     (h[2])->SetFillColor(30); //Tau Green
 
 
-    
-    
+
+
  //STACK ALL THE HISTO
 
     //STACK ALL THE HISTOGRAMS
     for (int m=0; m<3; m++) { //PT STACKING IN HS[0]
         (hs[0])->Add(h[m]);
     }
-    
+
     for (int i=1,j=0; i<4; i++,j+=2) { // RECONSTROCTUD STACKING HS[1,2,3]
         ((hs[i]))->Add((hR[j]));
         ((hs[i]))->Add((hR[j+1]));
         ((hs[i+3]))->Add((hRi[j])); //AND ISO REC HS[4,5,6]
         ((hs[i+3]))->Add((hRi[j+1]));
     }
-    
+
 // DRAW THE RECON HISTOGRAM
-    
-  
+
+
 
 
 
     //DRAW JUST THE PT STACKED, WITHOUT ANY CUTS
         (c[0])->Divide(2,2);
-    
+
     for (int i=0; i<3; i++) {
         c[0]->cd(i+1);
         h[i]->Draw();
     }
-        
+
         (c[0])->cd(4);
         (hs[0])->Draw();
 
-    
-    
+
+
     //Draw stacked histograms iso and rec particles
-    
+
     for (int i=1,j=0; i<4; i++,j+=2) {
         ((c[i]))->Divide(3,2);
         ((c[i]))->cd(1);
         ((hs[i]))->Draw();
         ((c[i]))->cd(2);
         ((hR[j]))->Draw();
-        
+
         ((c[i]))->cd(3);
         ((hR[j+1]))->Draw();
-        
+
         ((c[i]))->cd(4);
         ((hs[i+3]))->Draw();
-        
+
         ((c[i]))->cd(5);
         ((hRi[j]))->Draw();
-        
+
         ((c[i]))->cd(6);
         ((hRi[j+1]))->Draw();
 
 
     }
-    
+
     c[0]->SaveAs("./Graphs/new/pT_stacked_woCuts.pdf");
     c[1]->SaveAs("./Graphs/new/pT_stacked_RctIso_Ele.pdf");
     c[2]->SaveAs("./Graphs/new/pT_stacked_RctIso_Muon.pdf");
     c[3]->SaveAs("./Graphs/new/pT_stacked_RctIso_Tau.pdf");
-    
-    
+
+
 
     return;
 }
 
-//Draw two histograms. One for reconstructed isolated Electron pT, stacked by event type (lept_type), one for reconstructed muon pT, stacked by event type (lept type)
+
+//Bayes rebinning
+
+void Events::BayesRebin()
+
+{
+    
+    for (int i=0; i<6; i++) {
+        hRi_rb[i] = dynamic_cast<TH1F*>(BayesianBlocks::rebin(hRi[i]));
+    }
+ 
+}
+
+//Draw two histograms. One for reconstructed isolated Electron pT,
+//stacked by event type (lept_type), one for reconstructed muon pT,
+//stacked by event type (lept type)
 
 void Events::IsoStack()
 {
-    
+
     //RECOLOR THE HISTOGRAM BY LEPT_TYPE
-    ((hRi[0]))->SetFillColor(38); //electron blue
-    ((hRi[1]))->SetFillColor(38);
-    
-    ((hRi[2]))->SetFillColor(46); //muon red
-    ((hRi[3]))->SetFillColor(46);
-    
-    ((hRi[4]))->SetFillColor(30);  //tau red
-    ((hRi[5]))->SetFillColor(30);
-    
+    ((hRi_rb[0]))->SetFillColor(38); //electron blue
+    ((hRi_rb[1]))->SetFillColor(38);
+
+    ((hRi_rb[2]))->SetFillColor(46); //muon red
+    ((hRi_rb[3]))->SetFillColor(46);
+
+    ((hRi_rb[4]))->SetFillColor(30);  //tau red
+    ((hRi_rb[5]))->SetFillColor(30);
+
     //REFILL
-    
-    // RECONSTRUCTED ISOLATED STACKING OVER LEPT_TYPE, ONE FOR ELECTRON PT, THE OTHER FOR MUON PT
+
+    // RECONSTRUCTED ISOLATED STACKING OVER LEPT_TYPE, ONE FOR ELECTRON PT,
+    // THE OTHER FOR MUON PT
     for (int j=0; j<5; j+=2) {
-        ((hs[7]))->Add((hRi[j]));
-        ((hs[8]))->Add((hRi[j+1]));
+        ((hs[7]))->Add((hRi_rb[j]));
+        ((hs[8]))->Add((hRi_rb[j+1]));
     }
-    
-    
+
+
     //PLOT IN TWO CANVAS
-    
- 
-    
+
+
+
     for (int i=0, j=0; i<2; i++,j++) {
         (d[i])->Divide(2,2);
         (d[i])->cd(1);
-        (hRi[j])->Draw(); //up left ele event
+        (hRi_rb[j])->Draw(); //up left ele event
         (d[i])->cd(2);
-        (hRi[j+2])->Draw(); //up right muon event
+        (hRi_rb[j+2])->Draw(); //up right muon event
         (d[i])->cd(3);
-        (hRi[j+4])->Draw(); //down left tau event
-        
+        (hRi_rb[j+4])->Draw(); //down left tau event
+
         (d[i])->cd(4);
         (hs[j+7])->Draw(); //down right stacked
     }
-    
-    d[0]->SaveAs("./Graphs/new/Electron_pT_stacked_RctIso.pdf");
-    d[1]->SaveAs("./Graphs/new/Muon_pT_stacked_RctIso.pdf");
-    
+
+    d[0]->SaveAs("./Graphs/new/Electron_pT_stacked_RctIso_bayes.pdf");
+    d[1]->SaveAs("./Graphs/new/Muon_pT_stacked_RctIso_bayes.pdf");
+
 }
 
 void Events::WriteToFile() //Write to File function
@@ -197,20 +220,20 @@ void Events::WriteToFile() //Write to File function
     for (int i=0; i<3; i++) { //pt
         ((h[i]))->Write();
     }
-    
+
     for (int i=0; i<6; i++) { //rec prtc
         ((hR[i]))->Write();
     }
-    
+
     for (int i=0; i<6; i++) { //rec iso prtc
         ((hRi[i]))->Write();
     }
-    
+
     for (int i=0; i<9; i++) { //stacked histo
         ((hs[i]))->Write();
     }
     top->Write(); //write tree
-    
+
     output->Write(); //write file
     output->Close();
     return;
@@ -222,23 +245,23 @@ void Events::WriteToFile() //Write to File function
 void Events::Loop() //main fucntion, actually
 {
 
-    
-    
-    if (fChain == 0) return;
-    
-    Long64_t nentries = fChain->GetEntriesFast();
-    
 
-    
+
+    if (fChain == 0) return;
+
+    Long64_t nentries = fChain->GetEntriesFast();
+
+
+
     int ilept=-1; // lepton index in LHEPart collection
-    
+
     //VarDef();
 
 
     Long64_t nbytes = 0, nb = 0;
-    
-    //nentries=100;
-    
+
+    nentries=100;
+
     for (Long64_t jentry=0; jentry<nentries;jentry++) { //loop over entries
         Long64_t ientry = LoadTree(jentry);
         if (ientry < 0) break;
@@ -249,37 +272,37 @@ void Events::Loop() //main fucntion, actually
 
         int lept_type=0;
         lept_type=abs(LHEPart_pdgId[ilept]); // lepton pdgID type
-        
-        
+
+
         switch (lept_type) {
             case 11: //if electron
 
                 nele++; //increment electron counter
                 Filling(0, ilept); //fill histograms and tree
                 break;
-                
+
             case 13: //if muon
-                
+
                 nmu++;
                 Filling(1, ilept);
                 break;
-                
+
             case 15: //if tau
 
                 ntau++;
                 Filling(2, ilept);
                 break;
-                
+
             default:
-                
+
                 break;
-                
-                
+
+
         }
-        
+
 
         nev++; //increment lepton type events counter
-        
+
     }
 
 
@@ -287,28 +310,45 @@ void Events::Loop() //main fucntion, actually
 
 
 int main() {
-    
+
     Events t;
-    
+
     t.Loop();
     
+
     t.ReconStack(); //do the first
+    /*
+    TH1F*hist=t.hRi[0];
     
+    hist->FillRandom("gaus",10000);
+    hist->SetFillColor(38);
+    auto h_rebin = dynamic_cast<TH1*>(BayesianBlocks::rebin(hist));
+    h_rebin->SetFillColor(42);
+    TCanvas *c1 = new TCanvas("c1","c1",800,1000);
     
-    t.IsoStack();
-    
-    
+    c1->Divide(1,2);
+    c1->cd(1);
+    hist->Draw();
+    c1->cd(2);
+    h_rebin->Draw();
+    c1->cd();
+    c1->SaveAs("./prova.pdf");
+    */
+    t.BayesRebin();
+
+  t.IsoStack();
+
+
     t.WriteToFile();
-    
-    
-    std::cout <<" TOTALE EVENTI " <<nev<<std::endl;
-    std::cout << " Numero muoni " <<nmu<< " | n_mu/n_tau="<< (double) nmu/ntau<<std::endl;
-    std::cout << " Numero elettroni " <<nele<< " | n_ele/n_tau="<< (double) nele/ntau<<std::endl;
-    std::cout << " Numero tau " <<ntau<< " | 2*n_tau/(n_ele+n_mu)="<< (double) 2*ntau/(nele+nmu)<<std::endl;
+
+
+    //std::cout <<" TOTALE EVENTI " <<nev<<std::endl;
+    //std::cout << " Numero muoni " <<nmu<< " | n_mu/n_tau="<< (double) nmu/ntau<<std::endl;
+    //std::cout << " Numero elettroni " <<nele<< " | n_ele/n_tau="<< (double) nele/ntau<<std::endl;
+    //std::cout << " Numero tau " <<ntau<< " | 2*n_tau/(n_ele+n_mu)="<< (double) 2*ntau/(nele+nmu)<<std::endl;
 }
 
 //TO DO:
 
 // -Concatenare due file per leggere sia T che TBar
 //
-
