@@ -156,15 +156,9 @@ void Events::ReconStack()
 
 //Bayes rebinning
 
-void Events::BayesRebin()
 
-{
     
-    for (int i=0; i<6; i++) {
-        hRi_rb[i] = dynamic_cast<TH1F*>(BayesianBlocks::rebin(hRi[i]));
-    }
- 
-}
+
 
 //Draw two histograms. One for reconstructed isolated Electron pT,
 //stacked by event type (lept_type), one for reconstructed muon pT,
@@ -334,8 +328,17 @@ int main() {
     c1->cd();
     c1->SaveAs("./prova.pdf");
     */
-    t.BayesRebin();
-
+    
+    for (int j=0; j<6; j++) {
+        t.hRi[j]->Draw();
+        
+    }
+    
+    /*
+    for (int j=0; j<6; j++) {
+        t.hRi_rb[j] = dynamic_cast<TH1F*>(BayesianBlocks::rebin(t.hRi[j]));
+    }
+    */
   t.IsoStack();
 
 

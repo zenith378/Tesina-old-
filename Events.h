@@ -2931,7 +2931,7 @@ public :
    virtual void     IsoStack();
    virtual void     WriteToFile();
    virtual void     MyInit();
-   virtual void     BayesRebin();
+   //virtual void     BayesRebin();
 
 
    virtual Int_t    GetEntry(Long64_t entry);
